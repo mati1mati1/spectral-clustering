@@ -11,8 +11,8 @@ typedef struct vector
 } vector ;
 
 typedef struct eigenParams {
-    cord *eigenValues;
-    cord **eigenVectors;
+    double *eigenValues;
+    double **eigenVectors;
 } eigenParams ;
 
 // given the initial data set contains n points
