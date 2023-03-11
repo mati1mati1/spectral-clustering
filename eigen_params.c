@@ -18,6 +18,9 @@
     } while (0)
 #endif
 
+#define JACOBI_MAX_ROTATIONS 100
+#define JACOBI_EPSILON 0.00001
+
 vector *fillDataPoint();
 void printVector(vector *);
 int countPointsInVector(vector *pointsVector);
@@ -48,10 +51,15 @@ double calcA_j_j(double a_i_i, double a_j_j, double a_i_j, double c, double s);
 double calcA_r_i(double a_r_i, double a_r_j, double c, double s);
 double calcA_r_j(double a_r_i, double a_r_j, double c, double s);
 
+double **createIdentityMatrix(int mat_size);
+double **matrixMul(double **first_mat, double **second_mat, int mat_size);
+double rowColumnDotProduct(double **first_mat, double **second_mat, int row_index, int column_index, int mat_size);
 double **createUpdatedPointsArray(double **mat, rotationParams *rotation_params, int mat_size);
 double **createRotationMatrix(double **mat, rotationParams *rotation_params, int mat_size);
-void updateEigenVectorsMatrix(double **prev_matrix, double **rotation_matrix);
-int isConverged(double **points_array, double **updated_points_array, int iterations);
+
+double offDiagonalSquareSumDistance(double **first_mat, double **second_mat, int mat_size);
+double offDiagonalSquareSum(double **mat, int mat_size);
+int isConverged(double **points_array, double **updated_points_array, int iterations, int mat_size);
 
 double calcPhi(double **mat, int mat_size, rotationParams *rotation_params)
 {
@@ -180,7 +188,7 @@ double **createUpdatedPointsArray(double **points_array, rotationParams *rotatio
 
         for (j = 0; j < mat_size; j++)
         {
-            /* A'(i,i) */ 
+            /* A'(i,i) */
             if (i == rotation_params->i && j == rotation_params->i)
             {
                 update_points_array[i][j] = calcA_i_i(
@@ -192,7 +200,7 @@ double **createUpdatedPointsArray(double **points_array, rotationParams *rotatio
                 continue;
             }
 
-            /* A'(j,j) */ 
+            /* A'(j,j) */
             if (i == rotation_params->j && j == rotation_params->j)
             {
                 update_points_array[i][j] = calcA_j_j(
@@ -204,14 +212,14 @@ double **createUpdatedPointsArray(double **points_array, rotationParams *rotatio
                 continue;
             }
 
-            /* A'(i,j) or A'(j,i) */ 
+            /* A'(i,j) or A'(j,i) */
             if ((i == rotation_params->j && j == rotation_params->i) || (i == rotation_params->i && j == rotation_params->j))
             {
                 update_points_array[i][j] = 0;
                 continue;
             }
 
-            /* A'(r,i) where r != i, j */ 
+            /* A'(r,i) where r != i, j */
             if (j == rotation_params->i)
             {
                 update_points_array[i][j] = calcA_r_i(
@@ -222,7 +230,7 @@ double **createUpdatedPointsArray(double **points_array, rotationParams *rotatio
                 continue;
             }
 
-            /* A'(i,r) where r != i, j */ 
+            /* A'(i,r) where r != i, j */
             if (i == rotation_params->i)
             {
                 update_points_array[i][j] = calcA_r_i(
@@ -233,7 +241,7 @@ double **createUpdatedPointsArray(double **points_array, rotationParams *rotatio
                 continue;
             }
 
-            /* A'(r,j) where r != i, j */ 
+            /* A'(r,j) where r != i, j */
             if (j == rotation_params->j)
             {
                 update_points_array[i][j] = calcA_r_j(
@@ -244,7 +252,7 @@ double **createUpdatedPointsArray(double **points_array, rotationParams *rotatio
                 continue;
             }
 
-            /* A'(j,r) where r != i, j */ 
+            /* A'(j,r) where r != i, j */
             if (i == rotation_params->j)
             {
                 update_points_array[i][j] = calcA_r_j(
@@ -255,7 +263,7 @@ double **createUpdatedPointsArray(double **points_array, rotationParams *rotatio
                 continue;
             }
 
-            /* otherwise */ 
+            /* otherwise */
             update_points_array[i][j] = points_array[i][j];
         }
     }
@@ -288,13 +296,13 @@ double **createRotationMatrix(double **mat, rotationParams *rotation_params, int
 
             if ((i == rotation_params->i && j == rotation_params->j))
             {
-                rotation_matrix[i][j] = -1 * rotation_params->s;
+                rotation_matrix[i][j] = rotation_params->s;
                 continue;
             }
 
             if ((j == rotation_params->i && i == rotation_params->j))
             {
-                rotation_matrix[i][j] = rotation_params->s;
+                rotation_matrix[i][j] = -1 * rotation_params->s;
                 continue;
             }
 
@@ -305,13 +313,34 @@ double **createRotationMatrix(double **mat, rotationParams *rotation_params, int
     return rotation_matrix;
 }
 
-void updateEigenVectorsMatrix(double **prev_matrix, double **rotation_matrix)
+double offDiagonalSquareSumDistance(double **first_mat, double **second_mat, int mat_size)
 {
+    return offDiagonalSquareSum(first_mat, mat_size) - offDiagonalSquareSum(second_mat, mat_size);
 }
 
-int isConverged(double **points_array, double **updated_points_array, int iterations)
+double offDiagonalSquareSum(double **mat, int mat_size)
 {
-    return iterations > 10; 
+    double squared_sum = 0;
+    int i, j;
+
+    for (i = 0; i < mat_size; i++)
+    {
+        for (j = 0; j < mat_size; j++)
+        {
+            if (i == j)
+                continue;
+
+            squared_sum += pow(mat[i][j], 2.0);
+        }
+    }
+
+    return squared_sum;
+}
+
+int isConverged(double **points_array, double **updated_points_array, int iterations, int mat_size)
+{
+    return iterations >= JACOBI_MAX_ROTATIONS ||
+           offDiagonalSquareSumDistance(points_array, updated_points_array, mat_size) <= JACOBI_EPSILON;
 }
 
 char *printPointsArray(double **mat, int rows, int columns)
@@ -327,10 +356,58 @@ char *printPointsArray(double **mat, int rows, int columns)
     }
 }
 
+double **createIdentityMatrix(int mat_size)
+{
+    double **identity_matrix;
+    int i;
+
+    identity_matrix = malloc(mat_size * sizeof(double *));
+    assert(identity_matrix);
+
+    for (i = 0; i < mat_size; i++)
+    {
+        identity_matrix[i] = calloc(mat_size, sizeof(double));
+        identity_matrix[i][i] = 1;
+    }
+
+    return identity_matrix;
+}
+
+double **matrixMul(double **first_mat, double **second_mat, int mat_size)
+{
+    int i, j;
+    double **result = malloc(mat_size * sizeof(double *));
+
+    for (i = 0; i < mat_size; i++)
+    {
+        result[i] = malloc(mat_size * sizeof(double));
+
+        for (j = 0; j < mat_size; j++)
+        {
+            result[i][j] = rowColumnDotProduct(first_mat, second_mat, i, j, mat_size);
+        }
+    }
+
+    return result;
+}
+
+double rowColumnDotProduct(double **first_mat, double **second_mat, int row_index, int column_index, int mat_size)
+{
+    double result = 0;
+    int i;
+
+    for (i = 0; i < mat_size; i++)
+    {
+        result += first_mat[row_index][i] * second_mat[i][column_index];
+    }
+
+    return result;
+}
+
 int main()
 {
     vector *points_vector;
-    double **points_array, **updated_points_array, **eigen_vectors, **rotation_matrix;
+    double **points_array, **updated_points_array, **eigen_vectors, **updated_eigen_vectors, **rotation_matrix;
     int n, converged, iterations = 0;
     rotationParams *rotation_params = malloc(sizeof(rotation_params));
 
@@ -339,6 +416,7 @@ int main()
 
     DEBUG_PRINT(("n: [%d]\n", n));
 
+    eigen_vectors = createIdentityMatrix(n);
     points_array = vectorToPointsArray(points_vector, n);
 
     do
@@ -372,9 +450,14 @@ int main()
         DEBUG_EXEC((printPointsArray(rotation_matrix, n, n)));
 
         /* updated the V matrix using the rotation matrix */
-        updateEigenVectorsMatrix(eigen_vectors, rotation_matrix);
+        updated_eigen_vectors = matrixMul(eigen_vectors, rotation_matrix, n);
+        freePointsArray(eigen_vectors);
+        eigen_vectors = updated_eigen_vectors;
 
-        converged = isConverged(points_array, updated_points_array, iterations);
+        DEBUG_PRINT(("V:\n"));
+        DEBUG_EXEC((printPointsArray(eigen_vectors, n, n)));
+
+        converged = isConverged(points_array, updated_points_array, iterations, n);
 
         freePointsArray(points_array);
         freePointsArray(rotation_matrix);
