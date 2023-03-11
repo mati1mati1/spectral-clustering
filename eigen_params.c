@@ -43,11 +43,13 @@ typedef struct eigenParam
 
 double **vectorToPointsArray(vector *v, int n);
 double *cordToArray(cord *cord, int n);
+/*
 void freePointsArray(double **);
-char *printPointsArray(double **mat, int rows, int columns);
+*/
+void printPointsArray(double **mat, int rows, int columns);
 
 void findMaxOffDiagPoint(double **mat, int mat_size, rotationParams *rotation_params);
-double calcPhi(double **mat, int mat_size, rotationParams *rotation_params);
+double calcPhi(double **mat, rotationParams *rotation_params);
 double calcT(double phi);
 double calcC(double t);
 double calcS(double t, double c);
@@ -61,7 +63,7 @@ double **createIdentityMatrix(int mat_size);
 double **matrixMul(double **first_mat, double **second_mat, int mat_size);
 double rowColumnDotProduct(double **first_mat, double **second_mat, int row_index, int column_index, int mat_size);
 double **createUpdatedPointsArray(double **mat, rotationParams *rotation_params, int mat_size);
-double **createRotationMatrix(double **mat, rotationParams *rotation_params, int mat_size);
+double **createRotationMatrix(rotationParams *rotation_params, int mat_size);
 
 double offDiagonalSquareSumDistance(double **first_mat, double **second_mat, int mat_size);
 double offDiagonalSquareSum(double **mat, int mat_size);
@@ -72,7 +74,7 @@ double *extractEigenVectorFromColumn(double **eigen_vectors, int column_index, i
 void printEigenParams(eigenParam **eigenParams, int count);
 int eigen_param_cmp(const void *a, const void *b);
 
-double calcPhi(double **mat, int mat_size, rotationParams *rotation_params)
+double calcPhi(double **mat, rotationParams *rotation_params)
 {
     return (mat[rotation_params->j][rotation_params->j] - mat[rotation_params->i][rotation_params->i]) / (2 * mat[rotation_params->i][rotation_params->j]);
 }
@@ -137,9 +139,12 @@ double *cordToArray(cord *cord, int n)
     return cord_arr;
 }
 
+/* TODO: implement! 
 void freePointsArray(double **mat)
 {
+    
 }
+*/
 
 double calcT(double phi)
 {
@@ -282,7 +287,7 @@ double **createUpdatedPointsArray(double **points_array, rotationParams *rotatio
     return update_points_array;
 }
 
-double **createRotationMatrix(double **mat, rotationParams *rotation_params, int mat_size)
+double **createRotationMatrix(rotationParams *rotation_params, int mat_size)
 {
     int i, j;
     double **rotation_matrix = malloc(mat_size * sizeof(double *));
@@ -354,7 +359,7 @@ int isConverged(double **points_array, double **updated_points_array, int iterat
            offDiagonalSquareSumDistance(points_array, updated_points_array, mat_size) <= JACOBI_EPSILON;
 }
 
-char *printPointsArray(double **mat, int rows, int columns)
+void printPointsArray(double **mat, int rows, int columns)
 {
     int i, j;
     for (i = 0; i < rows; i++)
@@ -501,7 +506,7 @@ int main()
         findMaxOffDiagPoint(points_array, n, rotation_params);
         DEBUG_PRINT(("i: [%d], j: [%d], A_i_j: [%f] \n", rotation_params->i, rotation_params->j, points_array[rotation_params->i][rotation_params->j]));
 
-        rotation_params->phi = calcPhi(points_array, n, rotation_params);
+        rotation_params->phi = calcPhi(points_array, rotation_params);
         DEBUG_PRINT(("phi: [%f]\n", rotation_params->phi));
 
         rotation_params->t = calcT(rotation_params->phi);
@@ -516,13 +521,15 @@ int main()
         DEBUG_EXEC((printPointsArray(updated_points_array, n, n)));
 
         /* calculates the rotation matrix P */
-        rotation_matrix = createRotationMatrix(points_array, rotation_params, n);
+        rotation_matrix = createRotationMatrix(rotation_params, n);
         DEBUG_PRINT(("P:\n"));
         DEBUG_EXEC((printPointsArray(rotation_matrix, n, n)));
 
         /* updated the V matrix using the rotation matrix */
         updated_eigen_vectors = matrixMul(eigen_vectors, rotation_matrix, n);
+        /*
         freePointsArray(eigen_vectors);
+        */
         eigen_vectors = updated_eigen_vectors;
 
         DEBUG_PRINT(("V:\n"));
@@ -530,8 +537,10 @@ int main()
 
         converged = isConverged(points_array, updated_points_array, iterations, n);
 
+        /*
         freePointsArray(points_array);
         freePointsArray(rotation_matrix);
+        */
 
         points_array = updated_points_array;
 

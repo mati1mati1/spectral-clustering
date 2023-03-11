@@ -2,29 +2,26 @@ typedef struct cord
 {
     double value;
     struct cord *next;
-} cord ;
+} cord;
 
 typedef struct vector
 {
     cord *cords;
     struct vector *next;
-} vector ;
+} vector;
 
-typedef struct eigenParams {
+typedef struct eigenParams
+{
     double *eigenValues;
     double **eigenVectors;
-} eigenParams ;
+} eigenParams;
 
-// given the initial data set contains n points
-cord **createWeightedAdjMatrix(vector* initalDataPoints, int n); // Todo: Matan
-cord **createDegMatrix(cord** weightedMatrix, int n); // Todo: Matan
-cord **createGraphLaplacian(cord** weightedMatrix, cord** degMatrix, int n); // Todo: Matan
-eigenParams *findEigenParams(cord** GraphLaplacian, int n); // Todo: Shahaf
-int calcKUsingEigengapHeuristic(cord *eigenValues, int n); // Todo: Matan
+/* given the initial data set contains n points */
+cord **createWeightedAdjMatrix(vector *initalDataPoints, int n);
+cord **createDegMatrix(cord **weightedMatrix, int n);
+cord **createGraphLaplacian(cord **weightedMatrix, cord **degMatrix, int n);
+eigenParams *findEigenParams(cord **GraphLaplacian, int n);
+int calcKUsingEigengapHeuristic(cord *eigenValues, int n);
 
-// The matrix U is the given matrix for the k-means++ algo
-vector *createUMatrix(cord **eigenVectors, int k); // Todo: Matan
-
-
-
-
+/* The matrix U is the given matrix for the k-means++ algo */
+vector *createUMatrix(cord **eigenVectors, int k);
