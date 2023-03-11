@@ -35,6 +35,12 @@ typedef struct rotationParams
     double t;
 } rotationParams;
 
+typedef struct eigenParam
+{
+    double eigen_value;
+    double *eigen_vector;
+} eigenParam;
+
 double **vectorToPointsArray(vector *v, int n);
 double *cordToArray(cord *cord, int n);
 void freePointsArray(double **);
@@ -60,6 +66,11 @@ double **createRotationMatrix(double **mat, rotationParams *rotation_params, int
 double offDiagonalSquareSumDistance(double **first_mat, double **second_mat, int mat_size);
 double offDiagonalSquareSum(double **mat, int mat_size);
 int isConverged(double **points_array, double **updated_points_array, int iterations, int mat_size);
+
+eigenParam **createEigenParams(double **points_array, double **eigen_vectors, int mat_size);
+double *extractEigenVectorFromColumn(double **eigen_vectors, int column_index, int mat_size);
+void printEigenParams(eigenParam **eigenParams, int count);
+int eigen_param_cmp(const void *a, const void *b);
 
 double calcPhi(double **mat, int mat_size, rotationParams *rotation_params)
 {
@@ -404,11 +415,71 @@ double rowColumnDotProduct(double **first_mat, double **second_mat, int row_inde
     return result;
 }
 
+eigenParam **createEigenParams(double **points_array, double **eigen_vectors, int mat_size)
+{
+    int i;
+    eigenParam **eigen_params = malloc(mat_size * sizeof(eigenParam *));
+    assert(eigen_params != NULL);
+
+    for (i = 0; i < mat_size; i++)
+    {
+        eigenParam *eigen_param = malloc(sizeof(eigenParam));
+        assert(eigen_param != NULL);
+
+        eigen_param->eigen_value = points_array[i][i];
+        eigen_param->eigen_vector = extractEigenVectorFromColumn(eigen_vectors, i, mat_size);
+
+        eigen_params[i] = eigen_param;
+    }
+
+    return eigen_params;
+}
+
+double *extractEigenVectorFromColumn(double **eigen_vectors, int column_index, int mat_size)
+{
+    int i;
+    double *eigen_vector = malloc(mat_size * sizeof(double));
+    assert(eigen_vector != NULL);
+
+    for (i = 0; i < mat_size; i++)
+    {
+        eigen_vector[i] = eigen_vectors[i][column_index];
+    }
+
+    return eigen_vector;
+}
+
+void printEigenParams(eigenParam **eigen_params, int count)
+{
+    int i, j;
+
+    printf("\n****** Eigen Params ******\n");
+    for (i = 0; i < count; i++)
+    {
+        printf("\n%d:\n", i);
+        printf("Eigen Value: %.4f\n", eigen_params[i]->eigen_value);
+        printf("Eigen Vector: [");
+
+        for (j = 0; j < count - 1; j++)
+        {
+            printf("%.4f, ", eigen_params[i]->eigen_vector[j]);
+        }
+
+        printf("%.4f]\n", eigen_params[i]->eigen_vector[j]);
+    }
+}
+
+int eigen_param_cmp(const void *a, const void *b)
+{
+    return ((*(eigenParam**)a)->eigen_value - (*(eigenParam**)b)->eigen_value);
+}
+
 int main()
 {
     vector *points_vector;
     double **points_array, **updated_points_array, **eigen_vectors, **updated_eigen_vectors, **rotation_matrix;
     int n, converged, iterations = 0;
+    eigenParam **eigen_params;
     rotationParams *rotation_params = malloc(sizeof(rotation_params));
 
     points_vector = fillDataPoint(); /* free points vector? */
@@ -466,19 +537,10 @@ int main()
 
     } while (!converged);
 
-    /* create the eigen_params struct:
-
-    1. extractEigenValuesFromDiagonalMatrix(points_array); -> new struct that contains the values and original indexes;
-    2. qSort by the new struct (by values);
-    3. run over the sorted list and create a new sorted_eigen_vectors matrix (free the old one afterwards);
-    4. malloc the eigen_params struct:
-        eigen_params->eigenValues = eigenValues(extract_eigen_values);
-        eigen_params->eigenVectors = sorted_eigen_vectors;
-
-    */
-
-    /* calc the off(A)^2 - off(A')^2 */
-    /* converges when epsilon = 1.0 * 10 ^ -5 or 100 rotations */
+    eigen_params = createEigenParams(points_array, eigen_vectors, n);
+    DEBUG_EXEC((printEigenParams(eigen_params, n)));
+    qsort(eigen_params, n, sizeof(eigenParam *), eigen_param_cmp);
+    DEBUG_EXEC((printEigenParams(eigen_params, n)));
 
     return 0;
 }
