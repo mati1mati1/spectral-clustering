@@ -1,8 +1,8 @@
-#include "spkmeans.h"
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include "spkmeans.h"
 #include "eigen_params.h"
 
 double calcPhi(double **mat, rotationParams *rotation_params)
@@ -410,7 +410,7 @@ int eigen_param_cmp(const void *a, const void *b)
     return ((*(eigenParam**)a)->eigen_value - (*(eigenParam**)b)->eigen_value);
 }
 
-int main()
+int main_eigen_params()
 {
     vector *points_vector;
     double **points_array, **updated_points_array, **eigen_vectors, **updated_eigen_vectors, **rotation_matrix;

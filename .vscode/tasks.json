@@ -9,7 +9,7 @@
                 "${file}",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}",
-                "${fileDirname}/kmeans.c",
+                "${fileDirname}/file_utils.c",
                 "-lm",
                 "-D",
                 "DEBUG"

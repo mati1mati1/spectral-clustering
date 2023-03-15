@@ -17,10 +17,6 @@
 #define JACOBI_MAX_ROTATIONS 100
 #define JACOBI_EPSILON 0.00001
 
-vector *fillDataPoint();
-void printVector(vector *);
-int countPointsInVector(vector *pointsVector);
-
 typedef struct rotationParams
 {
     int i;
@@ -69,3 +65,5 @@ eigenParam **createEigenParams(double **points_array, double **eigen_vectors, in
 double *extractEigenVectorFromColumn(double **eigen_vectors, int column_index, int mat_size);
 void printEigenParams(eigenParam **eigenParams, int count);
 int eigen_param_cmp(const void *a, const void *b);
+
+/* eigenParams *findEigenParams(double **GraphLaplacian, int n); */
