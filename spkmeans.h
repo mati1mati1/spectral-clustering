@@ -17,11 +17,15 @@ typedef struct eigenParams
 } eigenParams;
 
 /* given the initial data set contains n points */
-cord **createWeightedAdjMatrix(vector *initalDataPoints, int n);
-cord **createDegMatrix(cord **weightedMatrix, int n);
-cord **createGraphLaplacian(cord **weightedMatrix, cord **degMatrix, int n);
-eigenParams *findEigenParams(cord **GraphLaplacian, int n);
-int calcKUsingEigengapHeuristic(cord *eigenValues, int n);
+double **createWeightedAdjMatrix(vector* initalDataPoints, int n); // Todo: Matan
+double **createDegMatrix(double** weightedMatrix, int n); // Todo: Matan
+double **createGraphLaplacian(double** weightedMatrix, double** degMatrix, int n); // Todo: Matan
+eigenParams *findEigenParams(double** GraphLaplacian, int n); // Todo: Shahaf
+int calcKUsingEigengapHeuristic(double* eigenValues, int n); // Todo: Matan
 
+void fillRowInWeightedAdjMatrix(double ** weightedAdjMatrix,vector* head,vector* curent,int n, int i);
+double callDisBetweenToVector(cord* first_cord,cord* second_cord);
+double calDeg(double** weightedMatrix, int i, int n);
 /* The matrix U is the given matrix for the k-means++ algo */
 vector *createUMatrix(cord **eigenVectors, int k);
+
