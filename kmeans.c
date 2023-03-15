@@ -370,7 +370,7 @@ void free_cord(cord *c) {
     }
 }
 
-int main(int argc, char *argv[]){
+int main1(int argc, char *argv[]){
     vector *pointsVector;
     cord **clusters;
     cord **updated_clusters;
