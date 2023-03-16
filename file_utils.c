@@ -85,9 +85,7 @@ int sanity_test() {
     int num_of_point, num_of_cords;
 
     num_of_point = calcNumOfPoint(f);
-    rewind(f);
     num_of_cords = calcNumOfCords(f);
-    rewind(f);
 
     printf("%d\n", num_of_point);
     printf("%d\n", num_of_cords);

@@ -13,6 +13,8 @@
                 "${fileDirname}/file_utils.h",
                 "${fileDirname}/eigen_params.c",
                 "${fileDirname}/eigen_params.h",
+                "${fileDirname}/matrix.c",
+                "${fileDirname}/matrix.h",
                 "-lm",
                 "-D",
                 "DEBUG"
