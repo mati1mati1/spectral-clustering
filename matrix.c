@@ -2,45 +2,40 @@
 #include <stdio.h>
 #include <math.h>
 
-double **createWeightedAdjMatrix(vector *initalDataPoints, int n)
+double **createWeightedAdjMatrix(double **data_points, int num_of_point,int num_of_cord)
 {
-    double **weightedAdjMatrix = caluc(n, sizeof(double));
-    vector *head = initalDataPoints;
-    vector *curent = initalDataPoints;
+    double **weightedAdjMatrix = caluc(num_of_point, sizeof(double*));
     int i;
-    for (i = 0; i < n; i++)
+    for (i = 0; i < num_of_point; i++)
     {
-        fillRowInWeightedAdjMatrix(weightedAdjMatrix, head, curent, n, i);
+        fillRowInWeightedAdjMatrix(weightedAdjMatrix,data_points,num_of_cord,num_of_point, i);
         curent = curent->next;
     }
     return weightedAdjMatrix;
 }
-
-void fillRowInWeightedAdjMatrix(double **weightedAdjMatrix, vector *head, vector *curent, int n, int i)
+void fillRowInWeightedAdjMatrix(double **weightedAdjMatrix,double **data_points,int num_of_cord,int num_of_point, int i)
 {
-    int j;
-    weightedAdjMatrix[i] = caluc(n, sizeof(double));
-    for (j = 0; j < n; j++)
+    int j=0;
+    weightedAdjMatrix[i] = caluc(num_of_point, sizeof(double));
+    for (j = 0; j < num_of_point; j++)
     {
         if (j != i)
         {
-            weightedAdjMatrix[i][j] = callDisBetweenToVector(curent->cords, head->cords);
+            weightedAdjMatrix[i][j] = callDisBetweenToVector(data_points[i], data_points[j++],num_of_cord);
         }
         else
         {
             weightedAdjMatrix[i][j] = 0;
         }
-        head = head->next;
     }
 }
-
-double callDisBetweenToVector(cord *first_cord, cord *second_cord)
+double callDisBetweenToVector(double *first_cord, double *second_cord,int num_of_cord)
 {
     double distance = 0;
-
-    while (first_cord != NULL)
+    int i;
+    for(i=0;i<num_of_cord;i++ ) 
     {
-        distance += pow((second_cord->value - first_cord->value), 2.0);
+        distance += pow((first_cord[i] - second_cord[i]), 2.0);
         first_cord = first_cord->next;
         second_cord = second_cord->next;
     }
