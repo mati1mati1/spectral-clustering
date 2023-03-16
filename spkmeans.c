@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
     if (strcmp(goal, "wam") == 0)
     {
         wam = createWeightedAdjMatrix(data_points, num_of_points, num_of_cords);
-        printPointsArray(wam, num_of_points, num_of_cords);
+        printPointsArray(wam, num_of_points, num_of_points);
     }
     else if (strcmp(goal, "ddg") == 0)
     {
