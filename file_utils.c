@@ -44,10 +44,13 @@ double **fillDataPoints(FILE *file, int num_of_cords, int num_of_points)
     ssize_t read;
     char *cord;
     double **data_points = (double **)malloc(num_of_points * sizeof(double *));
+    assert(data_points != NULL);
 
     while ((read = getline(&line, &len, file)) != -1)
     {
         data_points[i] = (double *)malloc(num_of_cords * sizeof(double));
+        assert(data_points[i] != NULL);
+
         cord = strtok(line, ",");
         for (j = 0; j < num_of_cords; j++)
         {
@@ -55,12 +58,15 @@ double **fillDataPoints(FILE *file, int num_of_cords, int num_of_points)
             {
                 cord = strtok(cord, "\n");
             }
+
             data_points[i][j] = strtod(cord, &cord + sizeof(double));
             cord = strtok(NULL, ",");
         }
+
         i++;
     }
 
+    free(line);
     rewind(file);
     return data_points;
 }
@@ -83,6 +89,8 @@ double **readDataPointsFromFile(char *file_name) {
 int sanity_test() {
     FILE *f = readFile("test_eigen_params.txt");
     int num_of_point, num_of_cords;
+    int i;
+    double **data_points;
 
     num_of_point = calcNumOfPoint(f);
     num_of_cords = calcNumOfCords(f);
@@ -90,8 +98,13 @@ int sanity_test() {
     printf("%d\n", num_of_point);
     printf("%d\n", num_of_cords);
 
-    fillDataPoints(f, num_of_cords, num_of_point);
+    data_points = fillDataPoints(f, num_of_cords, num_of_point);
     fclose(f);
+
+    for (i = 0; i < num_of_point; i++) {
+        free(data_points[i]);
+    }
+    free(data_points);
 
     return 0;
 }

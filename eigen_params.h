@@ -63,7 +63,10 @@ int isConverged(double **points_array, double **updated_points_array, int iterat
 
 eigenParam **createEigenParams(double **points_array, double **eigen_vectors, int mat_size);
 double *extractEigenVectorFromColumn(double **eigen_vectors, int column_index, int mat_size);
-void printEigenParams(eigenParam **eigenParams, int count);
+void debugPrintEigenParams(eigenParam **eigenParams, int count);
 int eigen_param_cmp(const void *a, const void *b);
 
 eigenParam **jacobi(double **data_points, int n);
+void printEigenParams(eigenParam **eigen_params, int n);
+void printEigenValues(eigenParam **eigen_params, int n);
+void printEigenVectors(eigenParam **eigen_params, int n);

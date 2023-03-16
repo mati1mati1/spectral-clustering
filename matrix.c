@@ -6,7 +6,7 @@
 
 double **createWeightedAdjMatrix(double **data_points, int num_of_point, int num_of_cord)
 {
-    double **weightedAdjMatrix = calloc(num_of_point, sizeof(double *));
+    double **weightedAdjMatrix = (double**)calloc(num_of_point, sizeof(double *));
     int i;
     
     for (i = 0; i < num_of_point; i++)
@@ -20,12 +20,13 @@ double **createWeightedAdjMatrix(double **data_points, int num_of_point, int num
 void fillRowInWeightedAdjMatrix(double **weightedAdjMatrix, double **data_points, int num_of_cord, int num_of_point, int i)
 {
     int j = 0;
-    weightedAdjMatrix[i] = calloc(num_of_point, sizeof(double));
+    weightedAdjMatrix[i] = (double*)calloc(num_of_point, sizeof(double));
+    
     for (j = 0; j < num_of_point; j++)
     {
         if (j != i)
         {
-            weightedAdjMatrix[i][j] = callDisBetweenToVector(data_points[i], data_points[j++], num_of_cord);
+            weightedAdjMatrix[i][j] = callDisBetweenToVector(data_points[i], data_points[j], num_of_cord);
         }
         else
         {
@@ -44,7 +45,7 @@ double callDisBetweenToVector(double *first_cord, double *second_cord, int num_o
         distance += pow((first_cord[i] - second_cord[i]), 2.0);
     }
 
-    return exp2(-1 * distance / 2);
+    return exp(-1 * distance / 2);
 }
 
 double **createDegMatrix(double **weightedMatrix, int n)
@@ -67,6 +68,8 @@ double **createDegMatrix(double **weightedMatrix, int n)
             }
         }
     }
+
+    return degMatrix;
 }
 
 double calDeg(double **weightedMatrix, int i, int n)

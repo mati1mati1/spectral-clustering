@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include "eigen_params.h"
+#include "file_utils.h"
 
 double calcPhi(double **mat, rotationParams *rotation_params)
 {
@@ -126,7 +127,7 @@ double **createUpdatedPointsArray(double **points_array, rotationParams *rotatio
     int i, j;
     double **update_points_array;
 
-    update_points_array = (double**)malloc(mat_size * sizeof(double *));
+    update_points_array = (double **)malloc(mat_size * sizeof(double *));
     assert(update_points_array != NULL);
 
     for (i = 0; i < mat_size; i++)
@@ -386,7 +387,7 @@ double *extractEigenVectorFromColumn(double **eigen_vectors, int column_index, i
     return eigen_vector;
 }
 
-void printEigenParams(eigenParam **eigen_params, int count)
+void debugPrintEigenParams(eigenParam **eigen_params, int count)
 {
     int i, j;
 
@@ -413,13 +414,12 @@ int eigen_param_cmp(const void *a, const void *b)
 
 eigenParam **jacobi(double **data_points, int n)
 {
-    double **updated_points_array, **eigen_vectors, **updated_eigen_vectors, **rotation_matrix;
+    double **updated_points_array, **updated_eigen_vectors, **rotation_matrix;
     int converged, iterations = 0;
     eigenParam **eigen_params;
-    rotationParams *rotation_params;
-    
-    eigen_vectors = createIdentityMatrix(n);
-    rotation_params = malloc(sizeof(rotation_params));
+    rotationParams *rotation_params = malloc(sizeof(rotationParams));
+    ;
+    double **eigen_vectors = createIdentityMatrix(n);
 
     do
     {
@@ -433,7 +433,7 @@ eigenParam **jacobi(double **data_points, int n)
 
         /* calculates the updated A' */
         updated_points_array = createUpdatedPointsArray(data_points, rotation_params, n);
-        
+
         /* calculates the rotation matrix P */
         rotation_matrix = createRotationMatrix(rotation_params, n);
 
@@ -458,4 +458,105 @@ eigenParam **jacobi(double **data_points, int n)
     eigen_params = createEigenParams(data_points, eigen_vectors, n);
     qsort(eigen_params, n, sizeof(eigenParam *), eigen_param_cmp);
     return eigen_params;
+}
+
+void printEigenParams(eigenParam **eigen_params, int n)
+{
+    printEigenValues(eigen_params, n);
+    printEigenVectors(eigen_params, n);
+}
+
+void printEigenValues(eigenParam **eigen_params, int n)
+{
+    int i;
+
+    for (i = 0; i < n - 1; i++)
+    {
+        printf("%.4f,", eigen_params[i]->eigen_value);
+    }
+
+    printf("%.4f\n", eigen_params[i]->eigen_value);
+}
+
+void printEigenVectors(eigenParam **eigen_params, int n)
+{
+    int i, j;
+
+    for (i = 0; i < n; i++)
+    {
+        for (j = 0; j < n - 1; j++)
+        {
+            printf("%.4f,", eigen_params[j]->eigen_vector[i]);
+        }
+
+        printf("%.4f\n", eigen_params[j]->eigen_vector[i]);
+    }
+}
+
+int test_main()
+{
+    double **points_array, **updated_points_array, **eigen_vectors, **updated_eigen_vectors, **rotation_matrix;
+    int n = 3, converged, iterations = 0;
+    eigenParam **eigen_params;
+    rotationParams *rotation_params = malloc(sizeof(rotationParams));
+    points_array = readDataPointsFromFile("test_eigen_params.txt");
+    eigen_vectors = createIdentityMatrix(n);
+
+    do
+    {
+        iterations++;
+        DEBUG_PRINT(("********************************\n"));
+        DEBUG_PRINT(("iteration: [%d]\n", iterations));
+        DEBUG_PRINT(("A:\n"));
+        DEBUG_EXEC((printPointsArray(points_array, n, n)));
+
+        findMaxOffDiagPoint(points_array, n, rotation_params);
+        DEBUG_PRINT(("i: [%d], j: [%d], A_i_j: [%f] \n", rotation_params->i, rotation_params->j, points_array[rotation_params->i][rotation_params->j]));
+
+        rotation_params->phi = calcPhi(points_array, rotation_params);
+        DEBUG_PRINT(("phi: [%f]\n", rotation_params->phi));
+
+        rotation_params->t = calcT(rotation_params->phi);
+        rotation_params->c = calcC(rotation_params->t);
+        rotation_params->s = calcS(rotation_params->t, rotation_params->c);
+
+        DEBUG_PRINT(("t: [%f], c: [%f], s: [%f]\n", rotation_params->t, rotation_params->c, rotation_params->s));
+
+        /* calculates the updated A' */
+        updated_points_array = createUpdatedPointsArray(points_array, rotation_params, n);
+        DEBUG_PRINT(("A':\n"));
+        DEBUG_EXEC((printPointsArray(updated_points_array, n, n)));
+
+        /* calculates the rotation matrix P */
+        rotation_matrix = createRotationMatrix(rotation_params, n);
+        DEBUG_PRINT(("P:\n"));
+        DEBUG_EXEC((printPointsArray(rotation_matrix, n, n)));
+
+        /* updated the V matrix using the rotation matrix */
+        updated_eigen_vectors = matrixMul(eigen_vectors, rotation_matrix, n);
+        /*
+        freePointsArray(eigen_vectors);
+        */
+        eigen_vectors = updated_eigen_vectors;
+
+        DEBUG_PRINT(("V:\n"));
+        DEBUG_EXEC((printPointsArray(eigen_vectors, n, n)));
+
+        converged = isConverged(points_array, updated_points_array, iterations, n);
+
+        /*
+        freePointsArray(points_array);
+        freePointsArray(rotation_matrix);
+        */
+
+        points_array = updated_points_array;
+
+    } while (!converged);
+
+    eigen_params = createEigenParams(points_array, eigen_vectors, n);
+    DEBUG_EXEC((debugPrintEigenParams(eigen_params, n)));
+    qsort(eigen_params, n, sizeof(eigenParam *), eigen_param_cmp);
+    DEBUG_EXEC((debugPrintEigenParams(eigen_params, n)));
+
+    return 0;
 }

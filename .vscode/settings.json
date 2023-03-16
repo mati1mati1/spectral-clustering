@@ -4,6 +4,7 @@
         "cstdio": "c",
         "eigen_params.h": "c",
         "file_utils.h": "c",
-        "spkmeans.h": "c"
+        "spkmeans.h": "c",
+        "matrix.h": "c"
     }
 }

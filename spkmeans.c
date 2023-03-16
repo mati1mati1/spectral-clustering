@@ -3,18 +3,18 @@
 #include "matrix.h"
 #include "eigen_params.h"
 
-
 int main(int argc, char *argv[])
 {
     int num_of_points, num_of_cords;
     double **data_points;
-    double **wam; /*, **ddg, **gl;*/
+    double **wam, **ddg, **gl;
     eigenParam **jacobi_results;
     char *goal = argv[1];
     char *file_name = argv[2];
-    assert(argc > 0);
 
     FILE *f = readFile(file_name);
+
+    assert(argc > 0);
 
     num_of_points = calcNumOfPoint(f);
     num_of_cords = calcNumOfCords(f);
@@ -29,14 +29,21 @@ int main(int argc, char *argv[])
     }
     else if (strcmp(goal, "ddg") == 0)
     {
+        wam = createWeightedAdjMatrix(data_points, num_of_points, num_of_cords);
+        ddg = createDegMatrix(wam, num_of_points);
+        printPointsArray(ddg, num_of_points, num_of_points);
     }
     else if (strcmp(goal, "gl") == 0)
     {
+        wam = createWeightedAdjMatrix(data_points, num_of_points, num_of_cords);
+        ddg = createDegMatrix(wam, num_of_points);
+        gl = createGraphLaplacian(wam, ddg, num_of_points);
+        printPointsArray(gl, num_of_points, num_of_points);
     }
     else if (strcmp(goal, "jacobi") == 0)
     {
         jacobi_results = jacobi(data_points, num_of_points);
-        printf("%f", jacobi_results[0]->eigen_value);
+        printEigenParams(jacobi_results, num_of_points);
     }
     else
     {
