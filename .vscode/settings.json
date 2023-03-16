@@ -1,6 +1,9 @@
 {
     "files.associations": {
         "math.h": "c",
-        "cstdio": "c"
+        "cstdio": "c",
+        "eigen_params.h": "c",
+        "file_utils.h": "c",
+        "spkmeans.h": "c"
     }
 }

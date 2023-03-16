@@ -66,4 +66,5 @@ double *extractEigenVectorFromColumn(double **eigen_vectors, int column_index, i
 void printEigenParams(eigenParam **eigenParams, int count);
 int eigen_param_cmp(const void *a, const void *b);
 
-/* eigenParams *findEigenParams(double **GraphLaplacian, int n); */
+eigenParam **jacobi(double **data_points, int n);
+int main_eigen_params();

@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "spkmeans.h"
 #include "eigen_params.h"
 
 double calcPhi(double **mat, rotationParams *rotation_params)
@@ -70,10 +69,10 @@ double *cordToArray(cord *cord, int n)
     return cord_arr;
 }
 
-/* TODO: implement! 
+/* TODO: implement!
 void freePointsArray(double **mat)
 {
-    
+
 }
 */
 
@@ -407,7 +406,55 @@ void printEigenParams(eigenParam **eigen_params, int count)
 
 int eigen_param_cmp(const void *a, const void *b)
 {
-    return ((*(eigenParam**)a)->eigen_value - (*(eigenParam**)b)->eigen_value);
+    return ((*(eigenParam **)a)->eigen_value - (*(eigenParam **)b)->eigen_value);
+}
+
+eigenParam **jacobi(double **data_points, int n)
+{
+    double **updated_points_array, **eigen_vectors, **updated_eigen_vectors, **rotation_matrix;
+    int converged, iterations = 0;
+    eigenParam **eigen_params;
+    rotationParams *rotation_params = malloc(sizeof(rotation_params));
+
+    eigen_vectors = createIdentityMatrix(n);
+
+    do
+    {
+        iterations++;
+        findMaxOffDiagPoint(data_points, n, rotation_params);
+
+        rotation_params->phi = calcPhi(data_points, rotation_params);
+        rotation_params->t = calcT(rotation_params->phi);
+        rotation_params->c = calcC(rotation_params->t);
+        rotation_params->s = calcS(rotation_params->t, rotation_params->c);
+
+        /* calculates the updated A' */
+        updated_points_array = createUpdatedPointsArray(data_points, rotation_params, n);
+        
+        /* calculates the rotation matrix P */
+        rotation_matrix = createRotationMatrix(rotation_params, n);
+
+        /* updated the V matrix using the rotation matrix */
+        updated_eigen_vectors = matrixMul(eigen_vectors, rotation_matrix, n);
+        /*
+        freePointsArray(eigen_vectors);
+        */
+        eigen_vectors = updated_eigen_vectors;
+
+        converged = isConverged(data_points, updated_points_array, iterations, n);
+
+        /*
+        freePointsArray(points_array);
+        freePointsArray(rotation_matrix);
+        */
+
+        data_points = updated_points_array;
+
+    } while (!converged);
+
+    eigen_params = createEigenParams(data_points, eigen_vectors, n);
+    qsort(eigen_params, n, sizeof(eigenParam *), eigen_param_cmp);
+    return eigen_params;
 }
 
 int main_eigen_params()
