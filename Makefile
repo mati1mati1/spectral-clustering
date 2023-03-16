@@ -1,8 +1,11 @@
 CC = gcc
-CFLAGS = -ansi -Wall -Wextra -Werror -pedantic-errors
+CFLAGS = -ansi -Wall -Wextra -Werror -pedantic-errors -lm
 
-spkmeans: eigen_params.o file_utils.o
-	$(CC) -o spkmeans eigen_params.o file_utils.o $(CFLAGS)
+spkmeans: spkmeans.o eigen_params.o file_utils.o
+	$(CC) -o spkmeans spkmeans.o eigen_params.o file_utils.o $(CFLAGS)
+
+spkmeans.o: spkmeans.c
+	$(CC) -c spkmeans.c eigen_params.h file_utils.h $(CFLAGS)
 
 eigen_params.o: eigen_params.c
 	$(CC) -c eigen_params.c eigen_params.h $(CFLAGS)

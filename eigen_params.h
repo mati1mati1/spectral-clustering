@@ -67,4 +67,3 @@ void printEigenParams(eigenParam **eigenParams, int count);
 int eigen_param_cmp(const void *a, const void *b);
 
 eigenParam **jacobi(double **data_points, int n);
-int main_eigen_params();

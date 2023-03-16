@@ -28,7 +28,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/${fileBasenameNoExtension}",
-            "args": ["blabla", "test_eigen_params_2.txt"],
+            "args": ["jacobi", "test_eigen_params.txt"],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [],
