@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "eigen_params.h"
+#include "jacobi.h"
 #include "file_utils.h"
 
 double calcPhi(double **mat, rotationParams *rotation_params)
@@ -418,7 +418,6 @@ eigenParam **jacobi(double **data_points, int n)
     int converged, iterations = 0;
     eigenParam **eigen_params;
     rotationParams *rotation_params = malloc(sizeof(rotationParams));
-    ;
     double **eigen_vectors = createIdentityMatrix(n);
 
     do

@@ -1,7 +1,7 @@
 #include <assert.h>
 #include "file_utils.h"
 #include "matrix.h"
-#include "eigen_params.h"
+#include "jacobi.h"
 
 int main(int argc, char *argv[])
 {

@@ -5,6 +5,7 @@
         "eigen_params.h": "c",
         "file_utils.h": "c",
         "spkmeans.h": "c",
-        "matrix.h": "c"
+        "matrix.h": "c",
+        "jacobi.h": "c"
     }
 }
