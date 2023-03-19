@@ -70,13 +70,6 @@ double *cordToArray(cord *cord, int n)
     return cord_arr;
 }
 
-/* TODO: implement!
-void freePointsArray(double **mat)
-{
-
-}
-*/
-
 double calcT(double phi)
 {
     return sign(phi) / (fabs(phi) + sqrt(pow(phi, 2.0) + 1));

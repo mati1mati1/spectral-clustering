@@ -17,6 +17,18 @@
 #define JACOBI_MAX_ROTATIONS 100
 #define JACOBI_EPSILON 0.00001
 
+typedef struct cord
+{
+    double value;
+    struct cord *next;
+} cord;
+
+typedef struct vector
+{
+    cord *cords;
+    struct vector *next;
+} vector;
+
 typedef struct rotationParams
 {
     int i;
@@ -35,9 +47,6 @@ typedef struct eigenParam
 
 double **vectorToPointsArray(vector *v, int n);
 double *cordToArray(cord *cord, int n);
-/*
-void freePointsArray(double **);
-*/
 void printPointsArray(double **mat, int rows, int columns);
 
 void findMaxOffDiagPoint(double **mat, int mat_size, rotationParams *rotation_params);

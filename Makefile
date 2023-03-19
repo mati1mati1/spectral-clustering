@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -ansi -Wall -Wextra -Werror -pedantic-errors -lm
+CFLAGS = -ansi -Wall -Wextra -Werror -pedantic-errors -lm -g
 
 spkmeans: spkmeans.o jacobi.o file_utils.o matrix.o
 	$(CC) -o spkmeans spkmeans.o jacobi.o file_utils.o matrix.o $(CFLAGS)
