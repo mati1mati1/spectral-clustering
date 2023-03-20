@@ -431,17 +431,17 @@ eigenParam **jacobi(double **data_points, int n)
 
         /* updated the V matrix using the rotation matrix */
         updated_eigen_vectors = matrixMul(eigen_vectors, rotation_matrix, n);
-        /*
-        freePointsArray(eigen_vectors);
-        */
+
+        freePointsArray(eigen_vectors, n);
         eigen_vectors = updated_eigen_vectors;
 
         converged = isConverged(data_points, updated_points_array, iterations, n);
 
-        /*
-        freePointsArray(points_array);
-        freePointsArray(rotation_matrix);
-        */
+        /* we don't want to free the given initial data_points */
+        if (iterations > 1)
+            freePointsArray(data_points, n);
+
+        freePointsArray(rotation_matrix, n);
 
         data_points = updated_points_array;
 
@@ -449,6 +449,11 @@ eigenParam **jacobi(double **data_points, int n)
 
     eigen_params = createEigenParams(data_points, eigen_vectors, n);
     qsort(eigen_params, n, sizeof(eigenParam *), eigen_param_cmp);
+
+    free(rotation_params);
+    freePointsArray(eigen_vectors, n);
+    freePointsArray(data_points, n);
+
     return eigen_params;
 }
 
@@ -483,6 +488,18 @@ void printEigenVectors(eigenParam **eigen_params, int n)
 
         printf("%.4f\n", eigen_params[j]->eigen_vector[i]);
     }
+}
+
+void freeEigenParams(eigenParam **eigen_params, int n)
+{
+    int i;
+    for (i = 0; i < n; i++)
+    {
+        free(eigen_params[i]->eigen_vector);
+        free(eigen_params[i]);
+    }
+
+    free(eigen_params);
 }
 
 int test_main()

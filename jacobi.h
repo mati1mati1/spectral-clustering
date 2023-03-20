@@ -45,6 +45,7 @@ typedef struct eigenParam
     double *eigen_vector;
 } eigenParam;
 
+void freeEigenParams(eigenParam **eigenParams, int n);
 double **vectorToPointsArray(vector *v, int n);
 double *cordToArray(cord *cord, int n);
 void printPointsArray(double **mat, int rows, int columns);

@@ -63,6 +63,7 @@ int main(int argc, char *argv[])
     {
         jacobi_results = jacobi(data_points, num_of_points);
         printEigenParams(jacobi_results, num_of_points);
+        freeEigenParams(jacobi_results, num_of_points);
     }
     else
     {
