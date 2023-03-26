@@ -1,7 +1,7 @@
 from setuptools import Extension, setup
 
-module = Extension("mykmeanssp", sources=['kmeansmodule.c'])
-setup(name='mykmeanssp',
+module = Extension("spkmeansmodule", sources=['spkmeansmodule.c', 'matrix.c'])
+setup(name='spkmeansmodule',
      version='1.0',
      description='Python wrapper for custom C extension',
      ext_modules=[module])
