@@ -1,5 +1,6 @@
 #include <Python.h>
 #include "matrix.h"
+#include "jacobi.h"
 
 double **parseDataPoints(PyObject *data_points)
 {
@@ -34,6 +35,31 @@ static PyObject *wrapWithPyObject(double **data_points, int rows, int columns)
         }
 
         PyList_SetItem(lst, i, inner_list);
+    }
+
+    return lst;
+}
+
+static PyObject *wrapEigenParamsWithPyObject(eigenParam **eigen_params, int n)
+{
+    PyObject *lst = PyList_New(n + 1);
+
+    PyObject *eigenvalues = PyList_New(n);
+    for (int i = 0; i < n; i++)
+    {
+        PyList_SetItem(eigenvalues, i, Py_BuildValue("d", eigen_params[i]->eigen_value));
+    }
+    PyList_SetItem(lst, 0, eigenvalues);
+
+    for (int i = 0; i < n; i++)
+    {
+        PyObject *eigenvector = PyList_New(n);
+        for (int j = 0; j < n; j++)
+        {
+            PyList_SetItem(eigenvector, j, Py_BuildValue("d", eigen_params[j]->eigen_vector[i]));
+        }
+
+        PyList_SetItem(lst, i + 1, eigenvector);
     }
 
     return lst;
@@ -78,20 +104,69 @@ static PyObject *ddg(PyObject *self, PyObject *args)
                             num_of_points);
 }
 
+static PyObject *gl(PyObject *self, PyObject *args)
+{
+    PyObject *data_points;
+    double **parsed_data_points;
+
+    if (!PyArg_ParseTuple(args, "O", &data_points))
+    {
+        return NULL;
+    }
+
+    parsed_data_points = parseDataPoints(data_points);
+    int num_of_points = PyObject_Length(data_points);
+    int num_of_cords = PyObject_Length(PyList_GetItem(data_points, 0));
+    double **wam = createWeightedAdjMatrix(parsed_data_points, num_of_points, num_of_cords);
+    double **ddg = createDegMatrix(wam, num_of_points);
+
+    return wrapWithPyObject(createGraphLaplacian(wam, ddg, num_of_points),
+                            num_of_points,
+                            num_of_points);
+}
+
+static PyObject *jacobi_wrap(PyObject *self, PyObject *args)
+{
+    PyObject *data_points;
+    double **parsed_data_points;
+
+    if (!PyArg_ParseTuple(args, "O", &data_points))
+    {
+        return NULL;
+    }
+
+    parsed_data_points = parseDataPoints(data_points);
+    int num_of_points = PyObject_Length(data_points);
+
+    return wrapEigenParamsWithPyObject(jacobi(parsed_data_points, num_of_points),
+                                       num_of_points);
+}
+
 static PyMethodDef spkmeansmoduleMethods[] = {
     {"wam",
      (PyCFunction)wam,
-     METH_VARARGS,                                                               /* flags indicating parameters
-                                                   accepted for this function */
-     PyDoc_STR("Calculates the weighted adjacency matrix of a given function")}, /*  The docstring for the function */
+     METH_VARARGS,                                                                          /* flags indicating parameters
+                                                              accepted for this function */
+     PyDoc_STR("Calculates the weighted adjacency matrix for a given set of data points")}, /*  The docstring for the function */
+
     {"ddg",
      (PyCFunction)ddg,
-     METH_VARARGS,                                                   /* flags indicating parameters
-                                       accepted for this function */
-     PyDoc_STR("Calculates the degree matrix of a given function")}, /*  The docstring for the function */
-    {NULL, NULL, 0, NULL}                                            /* The last entry must be all NULL as shown to act as a
-                                                                        sentinel. Python looks for this entry to know that all
-                                                                        of the functions for the module have been defined. */
+     METH_VARARGS,
+     PyDoc_STR("Calculates the degree matrix for a given set of data points")},
+
+    {"gl",
+     (PyCFunction)gl,
+     METH_VARARGS,
+     PyDoc_STR("Calculates the graph laplacian for a given set of data points")},
+
+    {"jacobi",
+     (PyCFunction)jacobi_wrap,
+     METH_VARARGS,
+     PyDoc_STR("Calculates the eigenvalues and eigenvectors for a given matrix according to Jacobi method")},
+
+    {NULL, NULL, 0, NULL} /* The last entry must be all NULL as shown to act as a
+                             sentinel. Python looks for this entry to know that all
+                             of the functions for the module have been defined. */
 };
 
 static struct PyModuleDef spkmeansmoduleModule = {
