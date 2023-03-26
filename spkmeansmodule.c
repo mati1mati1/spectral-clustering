@@ -1,6 +1,7 @@
 #include <Python.h>
 #include "matrix.h"
 #include "jacobi.h"
+#include "kmeans.h"
 
 double **parseDataPoints(PyObject *data_points)
 {
@@ -163,6 +164,11 @@ static PyMethodDef spkmeansmoduleMethods[] = {
      (PyCFunction)jacobi_wrap,
      METH_VARARGS,
      PyDoc_STR("Calculates the eigenvalues and eigenvectors for a given matrix according to Jacobi method")},
+
+    {"spk",                   
+      (PyCFunction) fit, 
+      METH_VARARGS,           
+      PyDoc_STR("A kmeans implemention written in C")},
 
     {NULL, NULL, 0, NULL} /* The last entry must be all NULL as shown to act as a
                              sentinel. Python looks for this entry to know that all

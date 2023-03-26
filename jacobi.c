@@ -4,6 +4,7 @@
 #include <assert.h>
 #include "jacobi.h"
 #include "file_utils.h"
+#include "spkmeans.h"
 
 double calcPhi(double **mat, rotationParams *rotation_params)
 {
@@ -34,40 +35,6 @@ void findMaxOffDiagPoint(double **mat, int mat_size, rotationParams *rotation_pa
             }
         }
     }
-}
-
-double **vectorToPointsArray(vector *v, int n)
-{
-    double **points_array;
-    int i;
-
-    points_array = malloc(n * sizeof(double *));
-    assert(points_array);
-
-    for (i = 0; i < n; i++)
-    {
-        points_array[i] = cordToArray(v->cords, n);
-        v = v->next;
-    }
-
-    return points_array;
-}
-
-double *cordToArray(cord *cord, int n)
-{
-    double *cord_arr;
-    int i;
-
-    cord_arr = malloc(n * sizeof(double));
-    assert(cord_arr);
-
-    for (i = 0; i < n; i++)
-    {
-        cord_arr[i] = cord->value;
-        cord = cord->next;
-    }
-
-    return cord_arr;
 }
 
 double calcT(double phi)

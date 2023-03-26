@@ -1,7 +1,7 @@
 import pandas as pd
 import sys
 import numpy as np
-import mykmeanssp as kmeans
+import spkmeansmodule as kmeans
 
 DEBUG = False
 
@@ -87,7 +87,7 @@ def Kmeans(k,iterations,eps,input_file_name_1,input_file_name_2):
         assert(len(arr) == merged_df_initial_size)
 
     print(",".join(indexes))
-    centroids_arr = kmeans.fit(k, 200, eps, arr)
+    centroids_arr = kmeans.spk(k, 200, eps, arr)
     print_centroids(centroids_arr)
 
 

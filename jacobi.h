@@ -1,5 +1,3 @@
-#include "spkmeans.h"
-
 #ifdef DEBUG
 #define DEBUG_PRINT(x) printf x
 #define DEBUG_EXEC(x) x
@@ -16,18 +14,6 @@
 
 #define JACOBI_MAX_ROTATIONS 100
 #define JACOBI_EPSILON 0.00001
-
-typedef struct cord
-{
-    double value;
-    struct cord *next;
-} cord;
-
-typedef struct vector
-{
-    cord *cords;
-    struct vector *next;
-} vector;
 
 typedef struct rotationParams
 {
@@ -46,8 +32,6 @@ typedef struct eigenParam
 } eigenParam;
 
 void freeEigenParams(eigenParam **eigenParams, int n);
-double **vectorToPointsArray(vector *v, int n);
-double *cordToArray(cord *cord, int n);
 void printPointsArray(double **mat, int rows, int columns);
 
 void findMaxOffDiagPoint(double **mat, int mat_size, rotationParams *rotation_params);
