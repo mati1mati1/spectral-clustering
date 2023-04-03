@@ -11,7 +11,20 @@ def get_heuristic(eigen_values):
     gap_array = np.zeros(int(len(eigen_values)/2))
     for _ in range(int(len(eigen_values)/2)):
         gap_array[_]= abs(eigen_values[_]-eigen_values[_+1])
-    return np.argmax(gap_array)
+    
+    return np.argmax(gap_array)+1
+
+def sort_vector(eigen_vector,index_of_sorted_eigen_vector):
+    sorted_eigen_vector = np.zeros_like(eigen_vector)
+    for _ in range(len(eigen_vector[0])):
+        sorted_eigen_vector[_] = eigen_vector[index_of_sorted_eigen_vector[_]]
+    return sorted_eigen_vector
+
+def get_index_of_sorted_eigen_vector(sorted_eigen_value,eigen_vector):
+    index_of_sorted_eigen_vector = np.zeros_like(eigen_vector,dtype=int)
+    for _ in range(len(eigen_vector)):
+        index_of_sorted_eigen_vector[_] = int(np.where(eigen_vector==sorted_eigen_value[_])[0][0])
+    return index_of_sorted_eigen_vector
 
 def Kmeans(k,iterations,eps,data_point):
 
@@ -41,7 +54,6 @@ def Kmeans(k,iterations,eps,data_point):
     while len(centroid_array) < k:
         data_point_df["distance"] = data_point_df.apply(lambda row: min(np.linalg.norm(i - row) for i in centroid_array), axis=1)
         data_point_df["ratio"] = data_point_df["distance"] / sum(data_point_df["distance"])  
-
 
         index = np.random.choice(data_point_df.index, 1, p=data_point_df["ratio"])
         indexes.append(str(int(index)))
@@ -81,10 +93,14 @@ def main():
     elif goal == "spk":
         gl_matrix = spkmeansmodule.gl(data_point)
         eigen_value = np.array(spkmeansmodule.jacobi(gl_matrix))
+        sorted_eigen_value = np.sort(eigen_value[0])
+        sorted_index = get_index_of_sorted_eigen_vector(sorted_eigen_value,eigen_value[0])
+        sorted_eigen_vector =  sort_vector(eigen_value,sorted_index)
         if k == -1:
-            k = get_heuristic(eigen_value[0]) 
-        k_first_eigen_vector = eigen_value[1:,:int(k)]
-        #print_matrix(k_first_eigen_vector[0])
+            k = get_heuristic(sorted_eigen_vector[0])
+        k_first_eigen_vector = sorted_eigen_vector[1:,:int(k)]
+        print(",".join(str(index) for index in sorted_index[:int(k)]))
+
         matrix_array = Kmeans(int(k),300,0,k_first_eigen_vector)
     print_matrix(matrix_array)
 
