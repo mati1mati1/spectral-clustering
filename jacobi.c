@@ -531,7 +531,8 @@ int test_main()
 
     eigen_params = createEigenParams(points_array, eigen_vectors, n);
     DEBUG_EXEC((debugPrintEigenParams(eigen_params, n)));
-    /* qsort(eigen_params, n, sizeof(eigenParam *), eigen_param_cmp); */
+    /* not actually needed... */
+    qsort(eigen_params, n, sizeof(eigenParam *), eigen_param_cmp);
     DEBUG_EXEC((debugPrintEigenParams(eigen_params, n)));
 
     return 0;
