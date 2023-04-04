@@ -415,7 +415,7 @@ eigenParam **jacobi(double **data_points, int n)
     } while (!converged);
 
     eigen_params = createEigenParams(data_points, eigen_vectors, n);
-    qsort(eigen_params, n, sizeof(eigenParam *), eigen_param_cmp);
+    /* qsort(eigen_params, n, sizeof(eigenParam *), eigen_param_cmp); */
 
     free(rotation_params);
     freePointsArray(eigen_vectors, n);
@@ -531,7 +531,7 @@ int test_main()
 
     eigen_params = createEigenParams(points_array, eigen_vectors, n);
     DEBUG_EXEC((debugPrintEigenParams(eigen_params, n)));
-    qsort(eigen_params, n, sizeof(eigenParam *), eigen_param_cmp);
+    /* qsort(eigen_params, n, sizeof(eigenParam *), eigen_param_cmp); */
     DEBUG_EXEC((debugPrintEigenParams(eigen_params, n)));
 
     return 0;
