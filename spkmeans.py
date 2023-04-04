@@ -22,8 +22,10 @@ def print_matrix(matrix_array):
     for centroid in matrix_array:
         print(",".join(("%.4f" % cord) for cord in centroid))
 
+
 def print_indexes(indexes):
     print(",".join(str(index) for index in indexes))
+
 
 def calc_k_using_eigengap_heuristic(eigen_values):
     gap_array = np.zeros(int(len(eigen_values) / 2))
