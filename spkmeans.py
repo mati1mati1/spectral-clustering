@@ -54,14 +54,14 @@ def kmeans_pp(k: int, iterations: int, eps: int, data_points: List[List[float]])
         indexes.append(int(index))
 
         row_to_append = data_points_df.loc[:, ~data_points_df.columns.isin(
-            ["distance", "ratio"])].loc[index].to_numpy()
+            ["distance", "ratio"])].loc[index].values.copy()
 
         centroid_array = np.append(centroid_array, row_to_append, axis=0)
 
         data_points_df = data_points_df.drop(index)
         data_points_df = data_points_df.drop(["distance", "ratio"], axis=1)
 
-    arr = centroid_array.tolist() + data_points_df.to_numpy().tolist()
+    arr = centroid_array.tolist() + data_points_df.values.copy().tolist()
 
     print_indexes(indexes)
     return spkmeansmodule.spk(k, iterations, eps, arr)
@@ -91,7 +91,7 @@ def main():
         goal = sys.argv[1]
         file_name = sys.argv[2]
 
-    data_points = pd.read_csv(file_name, header=None).to_numpy().tolist()
+    data_points = pd.read_csv(file_name, header=None).values.copy().tolist()
 
     if goal == "spk":
         result_matrix = spkmeans(data_points, k)
