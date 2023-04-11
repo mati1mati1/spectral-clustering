@@ -39,7 +39,7 @@ def kmeans_pp(k: int, iterations: int, eps: int, data_points: List[List[float]])
     data_points_df = pd.DataFrame(data_points)
     index = np.random.choice(data_points_df.index, 1)
 
-    centroid_array = data_points_df.loc[index].to_numpy()
+    centroid_array = data_points_df.loc[index].values.copy()
     data_points_df = data_points_df.drop(index)
 
     indexes = [int(index)]
